@@ -7,7 +7,7 @@ MAIN_DIR = SRC_DIR.parent
 CRAN = "cranfield"
 
 def init():
-    global DATASET_NAME, DATASET_PATH, DATA_DIR, DATA_DIR, DATA_DOCS, DATA_QRELS, DATA_QUERIES, PREP_DIR, PREP_DIR, PREP, IDX_DIR, IDX_DIR, IDX_INV, IDX_DOCLEN
+    global DATASET_NAME, DATASET_PATH, DATA_DIR, DATA_DIR, DATA_DOCS, DATA_QRELS, DATA_QUERIES, PREP_DIR, PREP_DIR, PREP, IDX_DIR, IDX_DIR, IDX_INV, IDX_DOCLEN, IDX_FLAT, IDX_MAP
     
     DATASET_NAME = CRAN
     DATASET_PATH = DATASET_NAME
@@ -26,3 +26,5 @@ def init():
     IDX_DIR.mkdir(parents=True, exist_ok=True)
     IDX_INV = IDX_DIR / "index.pkl"
     IDX_DOCLEN = IDX_DIR / "lengths.pkl"
+    IDX_FLAT = IDX_DIR / "faiss.index"
+    IDX_MAP = IDX_DIR / "map.pkl"
