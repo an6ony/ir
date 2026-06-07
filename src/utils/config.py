@@ -18,9 +18,9 @@ def init():
 
     print("init...", pth.DATASET_NAME)
 
-    IDX_FAISS = faiss.read_index(str(pth.IDX_FAISS))
+    # IDX_FAISS = faiss.read_index(str(pth.IDX_FAISS))
+    # with open(pth.IDX_MAP, "rb") as f: IDX_MAP = pickle.load(f)
 
-    with open(pth.IDX_MAP, "rb") as f: IDX_MAP = pickle.load(f)
     with open(pth.IDX_INV, "rb") as f: IDX_INV = pickle.load(f)
     with open(pth.IDX_DOCLEN, "rb") as f: IDX_DOCLEN = pickle.load(f)
 
