@@ -1,6 +1,15 @@
+import time
 import faiss
 import numpy as np
 import src.utils.paths as pth
+
+def timer(fn):
+    start_time = time.perf_counter()
+    result = fn()
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+    print(f"time:\t{execution_time:.6f} seconds\n")
+    return result
 
 def flat2ivf():
     old_index = faiss.read_index(str(pth.IDX_FLAT))
@@ -17,3 +26,13 @@ def flat2ivf():
     new_idx_path = str(pth.IDX_FAISS)
     print("Converted flat to ivf")
     faiss.write_index(new_index, new_idx_path)
+
+def faiss2numpy():
+    index = faiss.read_index(str(pth.IDX_FLAT))
+    num_docs = index.ntotal
+    embedding_dimension = index.d
+    raw_buffer = index.get_xb()
+    flat_array = faiss.rev_swig_ptr(raw_buffer, num_docs * embedding_dimension)
+    embeddings_matrix = flat_array.reshape(num_docs, embedding_dimension).astype('float32')
+    print("Converted flat to numpy")
+    np.save(pth.IDX_EMBED, embeddings_matrix)

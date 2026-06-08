@@ -12,14 +12,17 @@ import src.utils.config as cfg
 import src.utils.utils as utl
 
 if __name__ == '__main__':
-    # pth.init()
-    # utl.flat2ivf()
+    pth.init()
+    utl.flat2ivf()
+    utl.faiss2numpy()
     cfg.init()
     # download()
     # preprocess_docs()
     # build_inverted_index()
     # idx_faiss()
     # print(tf_idf(["test", "query", "token"], top_k=10))
-    # print(bert("test single query", top_k=5))
-    # print(bert(["test single query", "test multiple queires"], top_k=5))
-    print(bm25(["test", "query", "token"], top_k=10))
+    # print(bm25(["test", "query", "token"], top_k=10))
+    print(utl.timer(lambda: bert("test single query", top_k=5, use_faiss=False)))
+    print(utl.timer(lambda: bert("test single query", top_k=5, use_faiss=True)))
+    print(utl.timer(lambda: bert(["test single query", "test multiple queires"], top_k=5, use_faiss=False)))
+    print(utl.timer(lambda: bert(["test single query", "test multiple queires"], top_k=5, use_faiss=True)))
