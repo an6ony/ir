@@ -30,6 +30,11 @@ def process_doc_tokens(doc) -> list:
         if not (token.is_stop or token.is_punct or token.is_space)
     ]
 
+def preprocess_query(query: str) -> list:
+    nlp = get_nlp()
+    doc = nlp(query)
+    return process_doc_tokens(doc)
+
 def preprocess_docs():
     with open(pth.DATA_DOCS, "r", encoding="utf-8") as f:
         total_docs = sum(1 for _ in f)
