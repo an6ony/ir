@@ -15,8 +15,9 @@ import src.utils.config as cfg
 import src.utils.utils as utl
 
 if __name__ == '__main__':
+    pth.init()
+    utl.db()
     cfg.init()
-    # pth.init()
     # utl.flat2ivf()
     # utl.faiss2numpy()
     # download()
@@ -36,4 +37,4 @@ if __name__ == '__main__':
     # print(parallel(bm, bert_list, top_k=5))
     # print(correct(query))
     # print(prf(tokens, bm))
-    rank()
+    # rank()

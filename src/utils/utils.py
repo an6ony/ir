@@ -1,5 +1,8 @@
 import time
+import json
 import faiss
+import pickle
+import sqlite3
 import numpy as np
 import src.utils.paths as pth
 
@@ -36,3 +39,42 @@ def faiss2numpy():
     embeddings_matrix = flat_array.reshape(num_docs, embedding_dimension).astype('float32')
     print("Converted flat to numpy")
     np.save(pth.IDX_EMBED, embeddings_matrix)
+
+def db():
+    conn = sqlite3.connect(pth.DATA_DB)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS documents (
+            doc_id TEXT PRIMARY KEY,
+            text TEXT NOT NULL
+        )
+    """)
+    chunk = []
+    chunk_size = 50000
+    with open(pth.DATA_DOCS, encoding='utf-8') as f:
+        for line in f:
+            if not line.strip(): continue
+            doc = json.loads(line)
+            chunk.append((str(doc['doc_id']), doc['text']))
+            if len(chunk) >= chunk_size:
+                cursor.executemany("INSERT OR REPLACE INTO documents (doc_id, text) VALUES (?, ?)", chunk)
+                conn.commit()
+                chunk = []
+                print(f"Inserted {chunk_size} records...")
+        if chunk:
+            cursor.executemany("INSERT OR REPLACE INTO documents (doc_id, text) VALUES (?, ?)", chunk)
+            conn.commit()
+    print("Converted jsonl to sqlite")
+    conn.close()
+
+
+def pickle2json(pickle_path, json_path):
+    with open(pickle_path, "rb") as pickle_file:
+        data = pickle.load(pickle_file)
+    with open(json_path, "w", encoding="utf-8") as json_file:
+        json.dump(data, json_file, indent=4)
+
+def convert():
+    pickle2json(pth.IDX_INV, "index.json")
+    # pickle2json(pth.IDX_DOCLEN, "lengths.json")
+    # pickle2json(pth.IDX_MAP, "map.json")

@@ -123,3 +123,33 @@ def rank(queries=100):
     print(results_df.to_string(index=False))
     plot_model_comparison(results_df)
     plot_faiss_speed_comparison(speed_data)
+
+def plot_model_comparison_ui(results_df):
+    df_melted = results_df.melt(id_vars='Model', var_name='Metric', value_name='Score')
+    fig = px.bar(
+        df_melted, x='Model', y='Score', color='Metric', barmode='group',
+        title='Retrieval Model Performance Comparison',
+        labels={'Score': 'Value', 'Model': 'Retrieval Model'}
+    )
+    fig.update_layout(xaxis_tickangle=-45, margin=dict(b=100))
+    return fig
+
+def plot_faiss_speed_comparison_ui(speed_data):
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=list(speed_data.keys()), y=list(speed_data.values()),
+        marker_color=['#DC143C', '#20B2AA'], width=0.4
+    ))
+    fig.update_layout(
+        title='BERT Retrieval Time: Brute Force vs FAISS',
+        xaxis_title='Search Method', yaxis_title='Execution Time (seconds)',
+        template='plotly_white'
+    )
+    return fig
+
+def rank_ui(queries=100):
+    qrels, formatted_runs, speed_data = load_evaluation_data(queries)
+    results_df = evaluate_models(qrels, formatted_runs)
+    fig_metrics = plot_model_comparison_ui(results_df)
+    fig_speed = plot_faiss_speed_comparison_ui(speed_data)
+    return results_df, fig_metrics, fig_speed
