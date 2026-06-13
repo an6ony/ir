@@ -9,6 +9,7 @@ from src.retrieve.bm25 import bm25
 from src.retrieve.bert import bert
 from src.retrieve.hybrid import serial, parallel
 from src.refine import correct, prf
+from src.rank import rank
 import src.utils.paths as pth
 import src.utils.config as cfg
 import src.utils.utils as utl
@@ -22,10 +23,10 @@ if __name__ == '__main__':
     # preprocess_docs()
     # build_inverted_index()
     # idx_faiss()
-    query = "tesf singl queires tokne"
-    tokens = correct(query).split()
+    # query = "tesf singl queires tokne"
+    # tokens = correct(query).split()
     # print(tf_idf(tokens, top_k=10))
-    bm = bm25(tokens, top_k=10)
+    # bm = bm25(tokens, top_k=10)
     # print(utl.timer(lambda: bert([query, "test multiple queries"], top_k=5, use_faiss=False)))
     # print(utl.timer(lambda: bert([query, "test multiple queries"], top_k=5, use_faiss=True)))
     # print(utl.timer(lambda: bert(query, top_k=5, use_faiss=False)))
@@ -33,5 +34,6 @@ if __name__ == '__main__':
     # print(bert_list)
     # print(serial(query, bm, top_k=5))
     # print(parallel(bm, bert_list, top_k=5))
-    print(correct(query))
-    print(prf(tokens, bm))
+    # print(correct(query))
+    # print(prf(tokens, bm))
+    rank()
