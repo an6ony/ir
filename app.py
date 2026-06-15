@@ -1,8 +1,6 @@
 import streamlit as st
 import sqlite3
 import os
-import plotly.express as px
-import plotly.graph_objects as go
 os.environ["HF_HUB_OFFLINE"] = "1"
 
 import src.utils.config as cfg
@@ -16,12 +14,12 @@ from src.refine import correct, prf
 from src.rank import rank_ui
 
 @st.cache_resource(show_spinner="Parsing dataset indexes...")
-def get_dataset_state():
+def get_dataset_state(dataset_key: str):
     """
     Runs cfg.init() to load the target indexes into memory.
     Captures the resulting global memory states and caches them as a package.
     """
-    cfg.init()
+    cfg.init(dataset_key)
 
     return {
         "DATASET_NAME": pth.DATASET_NAME,
@@ -35,12 +33,12 @@ def get_dataset_state():
         "IDX_DOCLEN": cfg.IDX_DOCLEN
     }
 
-def load_dataset_index():
+def load_dataset_index(dataset_key: str):
     """
     Pulls data packages out of the resource manager cache.
     Re-injects state parameters safely into cfg globals upon every UI run.
     """
-    state_bundle = get_dataset_state()
+    state_bundle = get_dataset_state(dataset_key)
 
     pth.DATASET_NAME = state_bundle["DATASET_NAME"]
     pth.DATA_DB      = state_bundle["DATA_DB"]
@@ -82,11 +80,12 @@ with tab1:
 
     dataset_choice = st.sidebar.selectbox(
         "Select Dataset Target",
-        options=["Cranfield"],
+        options=["Quora", "Cranfield"],
         index=0
     )
+    dataset_key = "q" if "Quora" in dataset_choice else "c"
 
-    load_dataset_index()
+    load_dataset_index(dataset_key)
 
     algo_choice = st.sidebar.selectbox(
         "Retrieval Framework",

@@ -12,10 +12,10 @@ IDX_MAP = None
 IDX_INV = None
 IDX_DOCLEN = None
 
-def init():
+def init(key="q"):
     global DEVICE, MODEL, IDX_FAISS, IDX_EMBED, IDX_MAP, IDX_INV, IDX_DOCLEN
 
-    pth.init()
+    pth.init(key)
 
     print("init...", pth.DATASET_NAME)
 
