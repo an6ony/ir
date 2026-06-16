@@ -9,7 +9,7 @@ from src.retrieve.tf_idf import tf_idf
 from src.retrieve.bm25 import bm25
 from src.retrieve.bert import bert
 from src.retrieve.hybrid import serial, parallel
-from src.preprocessing_service import preprocess_query
+from src.preprocess import preprocess_query
 from src.refine import correct, prf
 from src.rank import rank_ui
 
@@ -182,23 +182,23 @@ with tab1:
 with tab2:
     st.header("System Performance Metrics")
     st.write("Run evaluation against a ground-truth dataset subset to analyze metric variations.")
-    
+
     eval_count = st.slider("Select evaluation query sample size", min_value=5, max_value=100, value=10, step=5)
-    
+
     if st.button(" Run Batch Evaluation", type="primary"):
         with st.spinner("Executing query batches across all indexing frameworks..."):
 
             results_df, fig_metrics, fig_speed = rank_ui(queries=eval_count)
-            
+
             st.subheader(" Final Metrics Output")
             st.dataframe(
                 results_df.style.background_gradient(cmap="Blues", subset=["MAP", "P@10", "nDCG@10"]),
                 use_container_width=True
             )
-            
+
             st.subheader(" Performance Visualization")
             st.plotly_chart(fig_metrics, use_container_width=True)
-            
+
             st.subheader(" Index Optimization Benchmarks")
             col1, col2 = st.columns([2, 1])
             with col1:
@@ -207,7 +207,7 @@ with tab2:
                 bf_time = fig_speed.data[0].y[0]
                 faiss_time = fig_speed.data[0].y[1]
                 speedup = bf_time / max(faiss_time, 0.00001)
-                
+
                 st.metric(label="Brute Force Execution", value=f"{bf_time:.4f}s")
                 st.metric(label="FAISS-Indexed Execution", value=f"{faiss_time:.4f}s")
                 st.success(f" FAISS yields a **{speedup:.1f}x** performance boost!")

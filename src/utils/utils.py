@@ -19,7 +19,7 @@ def flat2ivf():
     total_vectors = old_index.ntotal
     dimension = old_index.d
     vectors = old_index.reconstruct_n(0, total_vectors)
-    nlist = int(4 * np.sqrt(total_vectors)) 
+    nlist = int(4 * np.sqrt(total_vectors))
     quantizer = faiss.IndexFlatIP(dimension)
     new_index = faiss.IndexIVFFlat(quantizer, dimension, nlist, faiss.METRIC_INNER_PRODUCT)
     max_train_points = 256 * nlist

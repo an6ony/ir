@@ -6,11 +6,13 @@ MAIN_DIR = SRC_DIR.parent
 
 CRAN = "cranfield"
 QUORA = "beir/quora/dev"
+WIKI = "wikir/en1k/test"
 
 def init(key="q"):
     global DATASET_NAME, DATASET_PATH, DATA_DIR, DATA_DIR, DATA_DOCS, DATA_DB, DATA_QRELS, DATA_QUERIES, PREP_DIR, PREP_DIR, PREP, IDX_DIR, IDX_DIR, IDX_INV, IDX_DOCLEN, IDX_FLAT, IDX_MAP, IDX_FAISS, IDX_EMBED
 
     if "q" in key.lower(): DATASET_NAME = QUORA
+    elif "w" in key.lower(): DATASET_NAME = WIKI
     else: DATASET_NAME = CRAN
 
     DATASET_PATH = DATASET_NAME.strip(" /")

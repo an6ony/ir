@@ -4,7 +4,7 @@ from tqdm import tqdm
 from collections import Counter, defaultdict
 import src.utils.paths as pth
 
-def build_inverted_index():
+def index():
     with open(pth.PREP, "r", encoding="utf-8") as f:
         total_docs = sum(1 for line in f if line.strip())
 

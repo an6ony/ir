@@ -5,26 +5,22 @@ import src.utils.config as cfg
 def tf_idf(query_tokens, expansion_terms=[], top_k=100, og_weight=1.0, ex_weight=0.3):
     N = len(cfg.IDX_DOCLEN)
     scores = Counter()
-
     query_counts = Counter(query_tokens)
     expansion_counts = Counter(expansion_terms)
     all_terms = set(query_counts.keys()).union(set(expansion_counts.keys()))
     query_weights = {}
 
     for term in all_terms:
-        if term not in cfg.IDX_INV:
-            continue
+        if term not in cfg.IDX_INV: continue
 
         df = len(cfg.IDX_INV[term])
-        if df == 0:
-            continue
+        if df == 0: continue
 
         idf = math.log10(N / df)
 
         w_t_q = 0.0
         if term in query_counts:
             w_t_q += og_weight * (1 + math.log10(query_counts[term]))
-
         if term in expansion_counts:
             w_t_q += ex_weight * (1 + math.log10(expansion_counts[term]))
 

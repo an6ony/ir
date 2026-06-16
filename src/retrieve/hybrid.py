@@ -1,6 +1,6 @@
 from src.retrieve.bert import bert
 
-def serial(query_texts: list[str] | str, bm25_results_batch: list[list] | list, top_k=30):
+def serial(query_texts: list[str] | str, bm25_results_batch: list[list] | list, top_k=100):
     if not bm25_results_batch: return []
 
     doc_ids_batch = []
@@ -28,7 +28,7 @@ def min_max_normalize(results: dict) -> dict:
         for doc_id, score in results.items()
     }
 
-def parallel(bm25_list, bert_list, top_k=300, weight=0.5):
+def parallel(bm25_list, bert_list, top_k=100, weight=0.5):
     bm25_results = dict(bm25_list)
     bert_results = dict(bert_list)
     norm_bm25 = min_max_normalize(bm25_results)

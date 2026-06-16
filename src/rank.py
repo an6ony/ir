@@ -12,7 +12,7 @@ from src.retrieve.bm25 import bm25
 from src.retrieve.bert import bert
 from src.retrieve.hybrid import serial, parallel
 from src.refine import prf
-from src.preprocessing_service import preprocess_query
+from src.preprocess import preprocess_query
 
 def load_evaluation_data(count):
     queries_df = pd.read_csv(pth.DATA_QUERIES, sep="\t", names=["query_id", "query_text"], header=0)

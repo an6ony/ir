@@ -35,7 +35,7 @@ def preprocess_query(query: str) -> list:
     doc = nlp(query)
     return process_doc_tokens(doc)
 
-def preprocess_docs():
+def preprocess():
     with open(pth.DATA_DOCS, "r", encoding="utf-8") as f:
         total_docs = sum(1 for _ in f)
 

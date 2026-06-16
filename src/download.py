@@ -22,3 +22,9 @@ def download():
         f.write("query_id\tdoc_id\trelevance\n")
         for q in dataset.qrels_iter():
             f.write(f"{q.query_id}\t{q.doc_id}\t{q.relevance}\n")
+
+    if "wiki" in pth.DATASET_NAME:
+        with (pth.DATA_DIR / "bm25.tsv").open("w", encoding="utf-8") as f:
+            f.write("query_id\tdoc_id\tscore\n")
+            for q in dataset.scoreddocs_iter():
+                f.write(f"{q.query_id}\t{q.doc_id}\t{q.score}\n")
