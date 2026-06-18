@@ -1,3 +1,4 @@
+import math
 import orjson
 import pickle
 from tqdm import tqdm
@@ -10,7 +11,7 @@ def index():
 
     inverted_index = defaultdict(dict)
     doc_lengths = {}
-    pbar = tqdm(total=total_docs, desc="indexing preprocessed docs", unit="doc")
+    pbar = tqdm(total=total_docs, desc="Pass 1: Building Inverted Index", unit="doc")
 
     with open(pth.PREP, "r", encoding="utf-8") as f:
         for line in f:
@@ -32,11 +33,30 @@ def index():
                 inverted_index[term][doc_id_str] = frequency
 
             pbar.update(1)
-
     pbar.close()
+
+    doc_norms = defaultdict(float)
+
+    pbar_norms = tqdm(total=len(inverted_index), desc="Pass 2: Calculating Doc Norms", unit="term")
+    for term, doc_postings in inverted_index.items():
+        df = len(doc_postings)
+        if df > 0:
+            idf = math.log10(total_docs / df)
+            for doc_id_str, tf in doc_postings.items():
+                if tf > 0:
+                    w_t_d = (1 + math.log10(tf)) * idf
+                    doc_norms[doc_id_str] += w_t_d ** 2
+        pbar_norms.update(1)
+    pbar_norms.close()
+
+    for doc_id_str in doc_norms:
+        doc_norms[doc_id_str] = math.sqrt(doc_norms[doc_id_str])
 
     with open(pth.IDX_INV, "wb") as out_f:
         pickle.dump(inverted_index, out_f)
 
     with open(pth.IDX_DOCLEN, "wb") as out_l:
         pickle.dump(doc_lengths, out_l)
+
+    with open(pth.IDX_DOCNORM, "wb") as out_r:
+        pickle.dump(dict(doc_norms), out_r)

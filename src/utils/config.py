@@ -11,9 +11,10 @@ IDX_FAISS = None
 IDX_MAP = None
 IDX_INV = None
 IDX_DOCLEN = None
+IDX_DOCNORM = None
 
 def init(key="q"):
-    global DEVICE, MODEL, IDX_FAISS, IDX_EMBED, IDX_MAP, IDX_INV, IDX_DOCLEN
+    global DEVICE, MODEL, IDX_FAISS, IDX_EMBED, IDX_MAP, IDX_INV, IDX_DOCLEN, IDX_DOCNORM
 
     pth.init(key)
 
@@ -25,5 +26,6 @@ def init(key="q"):
 
     with open(pth.IDX_INV, "rb") as f: IDX_INV = pickle.load(f)
     with open(pth.IDX_DOCLEN, "rb") as f: IDX_DOCLEN = pickle.load(f)
+    with open(pth.IDX_DOCNORM, "rb") as f: IDX_DOCNORM = pickle.load(f)
 
     print("done init.")

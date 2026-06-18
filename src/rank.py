@@ -58,6 +58,7 @@ def load_evaluation_data(count):
     serial_refined_batch = serial(batch_texts, bm25_refined_order)
 
     for i, q_id in enumerate(q_ids):
+        print(i)
         runs["BERT"][q_id] = bert_batch[i]
         runs["Hybrid Serial"][q_id] = serial_batch[i]
         runs["Refined Serial"][q_id] = serial_refined_batch[i]
@@ -75,6 +76,7 @@ def load_evaluation_data(count):
     return qrels, formatted_runs, speed_data
 
 def evaluate_models(qrels, formatted_runs):
+    print("evaluating...")
     map_m = MAP
     p10_m = P@10
     rec10_m = Recall@10

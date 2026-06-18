@@ -9,7 +9,7 @@ QUORA = "beir/quora/dev"
 WIKI = "wikir/en1k/test"
 
 def init(key="q"):
-    global DATASET_NAME, DATASET_PATH, DATA_DIR, DATA_DIR, DATA_DOCS, DATA_DB, DATA_QRELS, DATA_QUERIES, PREP_DIR, PREP_DIR, PREP, IDX_DIR, IDX_DIR, IDX_INV, IDX_DOCLEN, IDX_FLAT, IDX_MAP, IDX_FAISS, IDX_EMBED
+    global DATASET_NAME, DATASET_PATH, DATA_DIR, DATA_DIR, DATA_DOCS, DATA_DB, DATA_QRELS, DATA_QUERIES, PREP_DIR, PREP_DIR, PREP, IDX_DIR, IDX_DIR, IDX_INV, IDX_DOCLEN, IDX_DOCNORM, IDX_FLAT, IDX_MAP, IDX_FAISS, IDX_EMBED
 
     if "q" in key.lower(): DATASET_NAME = QUORA
     elif "w" in key.lower(): DATASET_NAME = WIKI
@@ -32,6 +32,7 @@ def init(key="q"):
     IDX_DIR.mkdir(parents=True, exist_ok=True)
     IDX_INV = IDX_DIR / "index.pkl"
     IDX_DOCLEN = IDX_DIR / "lengths.pkl"
+    IDX_DOCNORM = IDX_DIR / "norms.pkl"
     IDX_FLAT = IDX_DIR / "faiss.index"
     IDX_FAISS = IDX_DIR / "ivf.index"
     IDX_EMBED = IDX_DIR / "embed.npy"

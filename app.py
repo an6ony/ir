@@ -30,7 +30,8 @@ def get_dataset_state(dataset_key: str):
         "IDX_EMBED": cfg.IDX_EMBED,
         "IDX_MAP": cfg.IDX_MAP,
         "IDX_INV": cfg.IDX_INV,
-        "IDX_DOCLEN": cfg.IDX_DOCLEN
+        "IDX_DOCLEN": cfg.IDX_DOCLEN,
+        "IDX_DOCNORM": cfg.IDX_DOCNORM
     }
 
 def load_dataset_index(dataset_key: str):
@@ -49,6 +50,7 @@ def load_dataset_index(dataset_key: str):
     cfg.IDX_MAP      = state_bundle["IDX_MAP"]
     cfg.IDX_INV      = state_bundle["IDX_INV"]
     cfg.IDX_DOCLEN   = state_bundle["IDX_DOCLEN"]
+    cfg.IDX_DOCNORM  = state_bundle["IDX_DOCNORM"]
 
 # ==========================================
 # 2. DATABASE HELPER
@@ -80,10 +82,10 @@ with tab1:
 
     dataset_choice = st.sidebar.selectbox(
         "Select Dataset Target",
-        options=["Quora", "Cranfield"],
+        options=["Quora", "Wikipedia", "Cranfield"],
         index=0
     )
-    dataset_key = "q" if "Quora" in dataset_choice else "c"
+    dataset_key = "w" if "Wiki" in dataset_choice else "q" if "Quora" in dataset_choice else "c"
 
     load_dataset_index(dataset_key)
 

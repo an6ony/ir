@@ -15,8 +15,8 @@ import src.utils.config as cfg
 import src.utils.utils as utl
 
 if __name__ == '__main__':
-    # ds = "quora"
-    ds = "cran"
+    ds = "quora"
+    # ds = "wiki"
     pth.init(ds)
 
     download()
