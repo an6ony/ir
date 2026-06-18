@@ -15,10 +15,6 @@ from src.rank import rank_ui
 
 @st.cache_resource(show_spinner="Parsing dataset indexes...")
 def get_dataset_state(dataset_key: str):
-    """
-    Runs cfg.init() to load the target indexes into memory.
-    Captures the resulting global memory states and caches them as a package.
-    """
     cfg.init(dataset_key)
 
     return {
@@ -35,10 +31,6 @@ def get_dataset_state(dataset_key: str):
     }
 
 def load_dataset_index(dataset_key: str):
-    """
-    Pulls data packages out of the resource manager cache.
-    Re-injects state parameters safely into cfg globals upon every UI run.
-    """
     state_bundle = get_dataset_state(dataset_key)
 
     pth.DATASET_NAME = state_bundle["DATASET_NAME"]
@@ -52,11 +44,7 @@ def load_dataset_index(dataset_key: str):
     cfg.IDX_DOCLEN   = state_bundle["IDX_DOCLEN"]
     cfg.IDX_DOCNORM  = state_bundle["IDX_DOCNORM"]
 
-# ==========================================
-# 2. DATABASE HELPER
-# ==========================================
 def fetch_document_text(doc_id: str) -> str:
-    """Fetches document text safely from the project SQLite database."""
     try:
         db_path = str(pth.DATA_DB)
         conn = sqlite3.connect(db_path)
@@ -68,9 +56,6 @@ def fetch_document_text(doc_id: str) -> str:
     except Exception as e:
         return f" Database Error: {str(e)}"
 
-# ==========================================
-# 3. STREAMLIT UI LAYOUT
-# ==========================================
 st.set_page_config(page_title="IR Project Engine", layout="wide")
 st.title(" University Information Retrieval Engine")
 
@@ -82,10 +67,10 @@ with tab1:
 
     dataset_choice = st.sidebar.selectbox(
         "Select Dataset Target",
-        options=["Quora", "Wikipedia", "Cranfield"],
+        options=["Wikipedia", "Quora", "Cranfield"],
         index=0
     )
-    dataset_key = "w" if "Wiki" in dataset_choice else "q" if "Quora" in dataset_choice else "c"
+    dataset_key = "w" if "Wikipedia" in dataset_choice else "q" if "Quora" in dataset_choice else "c"
 
     load_dataset_index(dataset_key)
 
