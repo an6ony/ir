@@ -2,7 +2,7 @@ import numpy as np
 import faiss
 import src.utils.config as cfg
 
-def bert(query_texts: list[str] | str, top_k=100, use_faiss=True, doc_ids_batch: list[list] | list = None):
+def bert(query_texts: list[str] | str, top_k=100, compare_faiss=True, doc_ids_batch: list[list] | list = None):
     single_query = isinstance(query_texts, str)
 
     if single_query:
@@ -19,10 +19,10 @@ def bert(query_texts: list[str] | str, top_k=100, use_faiss=True, doc_ids_batch:
     num_queries = len(query_texts)
     batch_results = []
 
-    if use_faiss and hasattr(cfg.IDX_FAISS, "nprobe"):
+    if compare_faiss and hasattr(cfg.IDX_FAISS, "nprobe"):
         cfg.IDX_FAISS.nprobe = 16
 
-    if use_faiss and doc_ids_batch is None:
+    if compare_faiss and doc_ids_batch is None:
         for q_idx in range(num_queries):
             single_query_vector = query_vectors[q_idx : q_idx + 1]
 

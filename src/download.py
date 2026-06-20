@@ -8,7 +8,7 @@ def download():
     dataset = ir_datasets.load(pth.DATASET_NAME)
 
     with (pth.DATA_DOCS).open("w", encoding="utf-8") as f:
-        for doc in tqdm(dataset.docs_iter(), desc=f"Writing {pth.DATASET_NAME} dqq", unit=" docs"):
+        for doc in tqdm(dataset.docs, desc=f"Writing {pth.DATASET_NAME} dqq", unit=" docs"):
             doc_data = {"doc_id": doc.doc_id, "text": doc.text}
             f.write(json.dumps(doc_data, ensure_ascii=False) + "\n")
 

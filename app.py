@@ -90,7 +90,7 @@ with tab1:
     ex_weight = 0.3
     k1 = 1.0
     b = 0.3
-    use_faiss = True
+    compare_faiss = True
     hybrid_weight = 0.5
 
     if algo_choice == "TF-IDF":
@@ -102,7 +102,7 @@ with tab1:
         og_weight = st.sidebar.slider("Original Weight", 0.0, 2.0, 1.0, 0.1)
         ex_weight = st.sidebar.slider("Expansion Weight", 0.0, 2.0, 0.3, 0.1)
     elif algo_choice == "BERT (Dense)":
-        use_faiss = st.sidebar.checkbox("Use FAISS Indexing", value=True, help="Uncheck to fallback to basic numpy matrix embeddings")
+        compare_faiss = st.sidebar.checkbox("Use FAISS Indexing", value=True, help="Uncheck to fallback to basic numpy matrix embeddings")
     elif algo_choice in ["Hybrid (Serial)", "Hybrid (Parallel)"]:
         if algo_choice == "Hybrid (Parallel)":
             hybrid_weight = st.sidebar.slider("Parallel Score Fusion Weight", 0.0, 1.0, 0.5, 0.05)
@@ -110,7 +110,7 @@ with tab1:
         b = st.sidebar.slider("BM25: b", 0.0, 1.0, 0.3, 0.05)
         og_weight = st.sidebar.slider("Original Weight", 0.0, 2.0, 1.0, 0.1)
         ex_weight = st.sidebar.slider("Expansion Weight", 0.0, 2.0, 0.3, 0.1)
-        use_faiss = st.sidebar.checkbox("BERT: Use FAISS Indexing", value=True)
+        compare_faiss = st.sidebar.checkbox("BERT: Use FAISS Indexing", value=True)
 
     query_input = st.text_input(" Enter your search pipeline query:", placeholder="e.g., How do IR Engines work?")
 
@@ -139,7 +139,7 @@ with tab1:
                 results = bm25(query_tokens, expansion_terms=expansion_tokens, top_k=top_k, k1=k1, b=b, og_weight=og_weight, ex_weight=ex_weight)
 
             elif algo_choice == "BERT (Dense)":
-                results = bert(working_query, top_k=top_k, use_faiss=use_faiss)
+                results = bert(working_query, top_k=top_k, compare_faiss=compare_faiss)
 
             elif algo_choice == "Hybrid (Serial)":
                 bm25_base = bm25(query_tokens, expansion_terms=expansion_tokens, top_k=100, k1=k1, b=b, og_weight=og_weight, ex_weight=ex_weight)
@@ -147,7 +147,7 @@ with tab1:
 
             elif algo_choice == "Hybrid (Parallel)":
                 bm25_base = bm25(query_tokens, expansion_terms=expansion_tokens, top_k=100, k1=k1, b=b, og_weight=og_weight, ex_weight=ex_weight)
-                bert_base = bert(working_query, top_k=100, use_faiss=use_faiss)
+                bert_base = bert(working_query, top_k=100, compare_faiss=compare_faiss)
                 results = parallel(bm25_base, bert_base, top_k=top_k, weight=hybrid_weight)
 
         st.subheader(f" Top Results matching '{algo_choice}' Strategy")
@@ -163,19 +163,30 @@ with tab1:
                         st.markdown(f"**ID:** `{doc_id}` | **Score:** `{score:.4f}`")
 
                     with col2:
-                        doc_text = fetch_document_text(doc_id)
-                        st.write(doc_text)
-
+                        with st.expander("Click here to expand the document"):
+                            doc_text = fetch_document_text(doc_id)
+                            st.write(doc_text)
 with tab2:
     st.header("System Performance Metrics")
     st.write("Run evaluation against a ground-truth dataset subset to analyze metric variations.")
 
     eval_count = st.slider("Select evaluation query sample size", min_value=5, max_value=100, value=10, step=5)
 
-    if st.button(" Run Batch Evaluation", type="primary"):
-        with st.spinner("Executing query batches across all indexing frameworks..."):
+    # New UI controls to match your updated function signatures
+    col_cfg1, col_cfg2 = st.columns(2)
+    with col_cfg1:
+        use_refine = st.checkbox("Enable Query Refinement", value=False)
+    with col_cfg2:
+        compare_faiss = st.checkbox("Compare FAISS Indexing", value=False)
 
-            results_df, fig_metrics, fig_speed = rank_ui(queries=eval_count)
+    if st.button(" Run Batch Evaluation", type="primary"):
+        with st.spinner("Executing query batches across selected frameworks..."):
+
+            results_df, fig_metrics, fig_speed = rank_ui(
+                queries=eval_count,
+                use_refine=use_refine,
+                compare_faiss=compare_faiss
+            )
 
             st.subheader(" Final Metrics Output")
             st.dataframe(

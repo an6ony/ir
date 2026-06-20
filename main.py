@@ -16,16 +16,16 @@ import src.utils.utils as utl
 
 if __name__ == '__main__':
     ds = "quora"
-    # ds = "wiki"
+    # ds = "cran"
     pth.init(ds)
 
-    download()
-    preprocess()
-    index()
-    idx_faiss()
+    # download()
+    # preprocess()
+    # index()
+    # idx_faiss()
 
-    utl.faiss2numpy()
-    utl.flat2ivf()
+    # utl.faiss2numpy()
+    # utl.flat2ivf()
     utl.db()
 
     cfg.init(ds)

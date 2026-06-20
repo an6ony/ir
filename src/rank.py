@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import ir_measures
+from tqdm import tqdm
 from ir_measures import Qrel, ScoredDoc
 from ir_measures import MAP, P, Recall, nDCG
 import matplotlib.pyplot as plt
@@ -14,7 +15,7 @@ from src.retrieve.hybrid import serial, parallel
 from src.refine import prf
 from src.preprocess import preprocess_query
 
-def load_evaluation_data(count):
+def load_evaluation_data(count, use_refine=False, compare_faiss=True, top_k=100):
     queries_df = pd.read_csv(pth.DATA_QUERIES, sep="\t", names=["query_id", "query_text"], header=0)
     queries_df = queries_df.head(count)
     query_lookup = dict(zip(queries_df["query_id"].astype(str), queries_df["query_text"].astype(str)))
@@ -33,37 +34,40 @@ def load_evaluation_data(count):
         "Refined TF-IDF": {}, "Refined BM25": {}, "Refined Serial": {}, "Refined Parallel": {}
     }
 
-    for q_id, q_text in query_lookup.items():
-        print(q_id, q_text)
+    for q_id, q_text in tqdm(query_lookup.items(), desc="Processing Queries"):
+        # print(q_id, q_text)
         pre = preprocess_query(q_text)
-        runs["TF-IDF"][q_id] = tf_idf(pre)
-        runs["BM25"][q_id] = bm25(pre)
-        srf = prf(pre, runs["BM25"][q_id])
-        runs["Refined TF-IDF"][q_id] = tf_idf(pre, srf)
-        runs["Refined BM25"][q_id] = bm25(pre, srf)
+        runs["TF-IDF"][q_id] = tf_idf(pre, top_k=top_k)
+        runs["BM25"][q_id] = bm25(pre, top_k=top_k)
+        if use_refine:
+            srf = prf(pre, runs["BM25"][q_id])
+            runs["Refined TF-IDF"][q_id] = tf_idf(pre, srf, top_k=top_k)
+            runs["Refined BM25"][q_id] = bm25(pre, srf, top_k=top_k)
 
     start_bf = time.time()
-    bert_batch = bert(batch_texts, use_faiss=False)
+    if compare_faiss:
+        _ = bert(batch_texts, compare_faiss=False, top_k=top_k)
     time_bf = time.time() - start_bf
 
     start_faiss = time.time()
-    _ = bert(batch_texts, use_faiss=True)
+    bert_batch = bert(batch_texts, compare_faiss=True, top_k=top_k)
     time_faiss = time.time() - start_faiss
 
     speed_data = { "Brute Force": time_bf, "FAISS Index": time_faiss }
 
     bm25_order = [runs["BM25"][q_id] for q_id in q_ids]
-    bm25_refined_order = [runs["Refined BM25"][q_id] for q_id in q_ids]
-    serial_batch = serial(batch_texts, bm25_order)
-    serial_refined_batch = serial(batch_texts, bm25_refined_order)
+    serial_batch = serial(batch_texts, bm25_order, top_k=top_k)
+    if use_refine:
+        bm25_refined_order = [runs["Refined BM25"][q_id] for q_id in q_ids]
+        serial_refined_batch = serial(batch_texts, bm25_refined_order, top_k=top_k)
 
     for i, q_id in enumerate(q_ids):
-        print(i)
         runs["BERT"][q_id] = bert_batch[i]
         runs["Hybrid Serial"][q_id] = serial_batch[i]
-        runs["Refined Serial"][q_id] = serial_refined_batch[i]
-        runs["Hybrid Parallel"][q_id] = parallel(runs["BM25"][q_id], runs["BERT"][q_id])
-        runs["Refined Parallel"][q_id] = parallel(runs["Refined BM25"][q_id], runs["BERT"][q_id])
+        runs["Hybrid Parallel"][q_id] = parallel(runs["BM25"][q_id], runs["BERT"][q_id], top_k=top_k)
+        if use_refine:
+            runs["Refined Serial"][q_id] = serial_refined_batch[i]
+            runs["Refined Parallel"][q_id] = parallel(runs["Refined BM25"][q_id], runs["BERT"][q_id], top_k=top_k)
 
     formatted_runs = {}
     for model_name, run_data in runs.items():
@@ -76,12 +80,11 @@ def load_evaluation_data(count):
     return qrels, formatted_runs, speed_data
 
 def evaluate_models(qrels, formatted_runs):
-    print("evaluating...")
     map_m = MAP
     p10_m = P@10
     rec10_m = Recall@10
-    ndcg10_m = nDCG@10
-    metrics = [map_m, p10_m, rec10_m, ndcg10_m]
+    ncdg = nDCG
+    metrics = [map_m, p10_m, rec10_m, ncdg]
     results_list = []
     print("\nComputing evaluation metrics...")
     for model_name, run in formatted_runs.items():
@@ -91,7 +94,7 @@ def evaluate_models(qrels, formatted_runs):
             'MAP': eval_dict[map_m],
             'P@10': eval_dict[p10_m],
             'Recall@10': eval_dict[rec10_m],
-            'nDCG@10': eval_dict[ndcg10_m]
+            'nDCG': eval_dict[ncdg]
         })
     return pd.DataFrame(results_list)
 
@@ -118,8 +121,8 @@ def plot_faiss_speed_comparison(speed_data):
     plt.tight_layout()
     plt.show()
 
-def rank(queries=100):
-    qrels, formatted_runs, speed_data = load_evaluation_data(queries)
+def rank(queries=100, use_refine=False, compare_faiss=False):
+    qrels, formatted_runs, speed_data = load_evaluation_data(queries, use_refine, compare_faiss)
     results_df = evaluate_models(qrels, formatted_runs)
     print("\n\t=== PERFORMANCE COMPARISON TABLE ===")
     print(results_df.to_string(index=False))
@@ -149,8 +152,8 @@ def plot_faiss_speed_comparison_ui(speed_data):
     )
     return fig
 
-def rank_ui(queries=100):
-    qrels, formatted_runs, speed_data = load_evaluation_data(queries)
+def rank_ui(queries=100, use_refine=False, compare_faiss=False):
+    qrels, formatted_runs, speed_data = load_evaluation_data(queries, use_refine, compare_faiss)
     results_df = evaluate_models(qrels, formatted_runs)
     fig_metrics = plot_model_comparison_ui(results_df)
     fig_speed = plot_faiss_speed_comparison_ui(speed_data)
