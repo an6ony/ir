@@ -190,7 +190,7 @@ with tab2:
 
             st.subheader(" Final Metrics Output")
             st.dataframe(
-                results_df.style.background_gradient(cmap="Blues", subset=["MAP", "P@10", "nDCG@10"]),
+                results_df.style.background_gradient(cmap="Blues", subset=["MAP", "P@10", "nDCG"]),
                 use_container_width=True
             )
 
